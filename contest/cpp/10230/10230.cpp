@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void  hamayesh(){
+void  homework(){
     int i, j, k;
     cin >> i >> j >> k;
     if (i >= 179 || j >= 179 || k >= 179 || i == 0 || j == 0 || k == 0)
@@ -21,6 +21,6 @@ void  hamayesh(){
 
 int main()
 {
-    hamayesh();
+    homework();
     return 0;
 }
