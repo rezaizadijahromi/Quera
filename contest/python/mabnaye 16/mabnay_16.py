@@ -49,8 +49,38 @@ def convert_binary_to_hex():
             hexa_revers.append(pop_value)
 
     return ''.join(hexa_revers)
-    
 
-print(convert_binary_to_hex())
-# print(convert_to_binary())
+def str_base(val, base):
+    res = ''
+    while val > 0:
+        res = str(val % base) + res
+        # val /= base # only valid for Py2
+        val //= base # for getting integer division
+    if res: return res
+    return '0'
+
+def numberToBase(n, b):
+    if n == 0:
+        return [0]
+    digits = []
+    while n:
+        digits.append(int(n % b))
+        n //= b
+
+    listNumbers = []
+    for i in range(len(digits)):
+        listNumbers.append(str(digits.pop()))
+
+    listNumbers = listNumbers[::-1]
+    return ''.join(listNumbers)
+    
+    # binary_digits = []
+    # while remainder_stack:
+    #     binary_digits.append(str(remainder_stack.pop()))
+
+    # return ''.join(binary_digits)
 # print(convert_binary_to_hex())
+# print(convert_to_binary())
+# print(str_base(5639, 6))
+# print(convert_binary_to_hex())
+print(numberToBase(545330, 10))
