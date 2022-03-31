@@ -6,6 +6,7 @@
 # buying last just for 45 sec after game starts 00:45:00
 # Start health 100 health == 0 means dead
 
+from unittest import result
 from player import Player
 
 
@@ -125,10 +126,41 @@ class Game:
         else:
             print("invalid username")
             return
-
+        attacker_info.kills += 1
+        attacked_info.killed += 1
         return "nice shot"
 
+    def score_board(self, time):
+        counter_terrorist_team_sorted = []
+        terrorist_team_sorted = []
+        print("Counter-Terrorist-Players:")
+        for counter_terrorist_player in self.counter_terrorist_team:
+            for i in self.counter_terrorist_team:
+                if counter_terrorist_player != i:
+                    if i.kills > counter_terrorist_player.kills:
+                        counter_terrorist_team_sorted.append(i)
+                    else:
+                        counter_terrorist_team_sorted.append(
+                            counter_terrorist_player)
+        for i in range(len(counter_terrorist_team_sorted)):
+            result = f"{0+1} {counter_terrorist_team_sorted[i]} {counter_terrorist_team_sorted[i].kills} {counter_terrorist_team_sorted[i].killed}"
+            print(result)
+
+        print("Terrorist-Players:")
+        for terrorist_player in self.terrorist_team:
+            for i in self.terrorist_team:
+                if terrorist_player != i:
+                    if i.kills > terrorist_player.kills:
+                        terrorist_team_sorted.append(i)
+                    else:
+                        terrorist_team_sorted.append(
+                            terrorist_player)
+        for i in range(len(terrorist_team_sorted)):
+            result = f"{0+1} {terrorist_team_sorted[i]} {terrorist_team_sorted[i].kills} {terrorist_team_sorted[i].killed}"
+            print(result)
+
     # helper function
+
     def get_payer_info(self, name):
         for counter_terrorist, terrorist in zip(self.counter_terrorist_team, self.terrorist_team):
             if counter_terrorist.name == name:

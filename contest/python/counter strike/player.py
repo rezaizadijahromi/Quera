@@ -10,6 +10,8 @@ class Player:
         self.money = 1000
         self.health = 100
         self.living = True
+        self.killed = 0
+        self.kills = 0
         self.game_guns = {
             "terrorist": {
                 "heavy_gun": {
