@@ -12,6 +12,7 @@ from player import Player
 
 class Game:
     def __init__(self):
+        # TODO Fix issue for player pointer
         self.player = Player()
         self.terrorist_team = []
         self.counter_terrorist_team = []
@@ -160,7 +161,6 @@ class Game:
             print(result)
 
     # helper function
-
     def get_payer_info(self, name):
         for counter_terrorist, terrorist in zip(self.counter_terrorist_team, self.terrorist_team):
             if counter_terrorist.name == name:
@@ -170,6 +170,31 @@ class Game:
             else:
                 return "not found"
 
+
+def main():
+    number_of_rounds = int(input())
+    game = Game()
+    for i in range(number_of_rounds):
+        command = input().split(" ")
+        number_of_command = command[1]
+        for j in range(number_of_command):
+            c = list(map(input().split()))
+            if c[0] == "ADD-USER":
+                p = Player(name=c[1], team=c[2], enter_time=c[3])
+            elif c[0] == "GET-MONEY":
+                # TODO need player name
+                game.get_money()
+            elif c[0] == "GET-HEALTH":
+                # TODO need player name
+                game.get_health()
+            elif c[0] == "TAP":
+                game.tap(attacker=c[1], attacked=c[2],
+                         gun_type=c[3], time=c[4])
+            elif c[0] == "SCORE-BOARD":
+                game.score_board(time=c[1])
+
+
+main()
 
 obj = Player("reza", "Counter-terrorist", "00:00:00")
 counter_terroris = obj.game_guns["Counter-terrorist"]
