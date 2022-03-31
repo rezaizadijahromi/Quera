@@ -105,7 +105,38 @@ class Game:
             return
 
     def tap(self, attacker, attacked, gun_type, time):
-        pass
+        # TODO Implementing time
+        if attacked in self.counter_terrorist_team and attacked in self.counter_terrorist_team or attacker in self.counter_terrorist_team and attacked in self.counter_terrorist_team:
+            # TODO return team and existense
+            attacker_info = self.get_payer_info(attacker)
+            attacked_info = self.get_payer_info(attacked)
+            if not attacked_info.get_living():
+                print("attacked is dead")
+                return
+            elif not attacker_info.get_living():
+                print("attacker is dead")
+                return
+            elif attacker_info.team == attacked_info.team:
+                print("friendly fire")
+                return
+            elif gun_type not in attacker_info.guns:
+                print("no such gun")
+                return
+        else:
+            print("invalid username")
+            return
+
+        return "nice shot"
+
+    # helper function
+    def get_payer_info(self, name):
+        for counter_terrorist, terrorist in zip(self.counter_terrorist_team, self.terrorist_team):
+            if counter_terrorist.name == name:
+                return counter_terroris
+            elif terrorist.name == name:
+                return terrorist
+            else:
+                return "not found"
 
 
 obj = Player("reza", "Counter-terrorist", "00:00:00")
