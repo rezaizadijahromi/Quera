@@ -12,8 +12,6 @@ def compare(string1, string2):
             string1 = string1[1::]
             string2 = string2[1::]
 
-        # print(string1)
-        # print(string2)
         if len(string1) == 0 and len(string2) == 0:
             return "Both strings are empty!"
 
