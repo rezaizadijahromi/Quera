@@ -1,7 +1,5 @@
 use std::{io, collections::HashMap, i32};
 
-
-
 fn main() {
     let mut buffer = String::new();
     io::stdin().read_line(&mut buffer).unwrap();
@@ -21,20 +19,20 @@ fn main() {
         io::stdin().read_line(&mut airplane).unwrap();
         plane_status.insert(airplane, 1);
     }
-
     // set the bounds status to -1 means not taken
     for index in 0..number_of_air_bounds {
         bound_status.insert(index, -1);
     }
 
+    println!("airplanes: {:?}", plane_status);
+
     // TODO should be in for loop for all the commands
     // get the command and split it 
-    let commands: String = String::new();
-    io::stdin().read_line(& mut commands.to_uppercase()).unwrap();
+    let mut commands: String = String::new();
+    io::stdin().read_line(&mut commands).unwrap();
     let command: Vec<&str> = commands.split(" ").collect();
 
-     
-    let state = match command[0] {
+    let _state = match command[0] {
         "TAKE-OFF" => {
             if plane_status.get(&command[1].to_owned()) == Some(&4) {
                 Some("YOU ARE NOT HERE")
