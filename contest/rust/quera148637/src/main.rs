@@ -1,4 +1,4 @@
-use std::{io, collections::HashMap};
+use std::{io, collections::HashMap, i32};
 
 
 
@@ -29,7 +29,7 @@ fn main() {
 
     // TODO should be in for loop for all the commands
     // get the command and split it 
-    let mut commands: String = String::new();
+    let commands: String = String::new();
     io::stdin().read_line(& mut commands.to_uppercase()).unwrap();
     let command: Vec<&str> = commands.split(" ").collect();
 
@@ -46,12 +46,11 @@ fn main() {
             }
             else if plane_status.get(&command[1].to_owned()) == Some(&1){
                 for (k, v) in bound_status.iter(){
-                    if v == &-1 {
-                        Some(bound_status[k] = 1);
-                    }else{
-                        Some("NO FREE BOUND");
+                    if k == &-1{
+                       Some(*bound_status.get(&k).insert(v));
                     }
                 }
+                Some("Something")
             }else{
                 None
             }
