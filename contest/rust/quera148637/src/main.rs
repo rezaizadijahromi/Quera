@@ -1,4 +1,4 @@
-use std::{io, collections::HashMap, i32};
+use std::{io, collections::HashMap};
 
 fn main() {
     let mut buffer = String::new();
@@ -17,7 +17,8 @@ fn main() {
     for _ in 0..number_of_airplanes{
         let mut airplane: String = String::new();
         io::stdin().read_line(&mut airplane).unwrap();
-        plane_status.insert(airplane, 1);
+
+        plane_status.insert(airplane.strip_suffix("\r\n").unwrap().to_string(), 1);
     }
     // set the bounds status to -1 means not taken
     for index in 0..number_of_air_bounds {
@@ -32,8 +33,13 @@ fn main() {
     io::stdin().read_line(&mut commands).unwrap();
     let command: Vec<&str> = commands.split(" ").collect();
 
+    println!("second command key is {:?}", command[1]);
+    // should add this form to rest of the code
+    println!("second command value is: {:?}", plane_status.get(command[1].strip_suffix("\r\n").unwrap()));
+
     let _state = match command[0] {
         "TAKE-OFF" => {
+            println!("in take off branch");
             if plane_status.get(&command[1].to_owned()) == Some(&4) {
                 Some("YOU ARE NOT HERE")
             }else if plane_status.get(&command[1].to_owned()) == Some(&3){
@@ -43,11 +49,14 @@ fn main() {
                 Some("YOU ARE TAKING OFF")
             }
             else if plane_status.get(&command[1].to_owned()) == Some(&1){
+                println!("Here we are");
+                println!("status bound: {:?}", bound_status);
                 for (k, v) in bound_status.iter(){
                     if k == &-1{
                        Some(*bound_status.get(&k).insert(v));
                     }
                 }
+                println!("{:?}", bound_status);
                 Some("Something")
             }else{
                 None
