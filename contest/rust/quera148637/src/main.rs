@@ -33,30 +33,27 @@ fn main() {
     io::stdin().read_line(&mut commands).unwrap();
     let command: Vec<&str> = commands.split(" ").collect();
 
-    println!("second command key is {:?}", command[1]);
-    // should add this form to rest of the code
-    println!("second command value is: {:?}", plane_status.get(command[1].strip_suffix("\r\n").unwrap()));
-
     let _state = match command[0] {
         "TAKE-OFF" => {
-            println!("in take off branch");
-            if plane_status.get(&command[1].to_owned()) == Some(&4) {
+            if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&4) {
                 Some("YOU ARE NOT HERE")
-            }else if plane_status.get(&command[1].to_owned()) == Some(&3){
+            }else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&3){
                 Some("YOU ARE LANDING NOW")
             }
-            else if plane_status.get(&command[1].to_owned()) == Some(&2){
+            else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&2){
                 Some("YOU ARE TAKING OFF")
             }
-            else if plane_status.get(&command[1].to_owned()) == Some(&1){
-                println!("Here we are");
+            else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&1){
                 println!("status bound: {:?}", bound_status);
-                for (k, v) in bound_status.iter(){
+                // there is a problem here the bound status won't update
+                for (k, v) in bound_status.to_owned().iter_mut(){
                     if k == &-1{
-                       Some(*bound_status.get(&k).insert(v));
+                       // TODO this is not updating the hash map
+                        Some(bound_status.entry(*k).or_insert(*v));
                     }
                 }
-                println!("{:?}", bound_status);
+
+                println!("Updated bound status: {:?}", bound_status);
                 Some("Something")
             }else{
                 None
