@@ -1,5 +1,46 @@
 use std::{io, collections::HashMap};
 
+
+enum PlaneStatus {
+    FREE,
+    LANDING,
+    TAKE_OFF,
+    NOT_IN_AIRPORT
+}
+
+enum BandStatus{
+    FREE,
+    BUSY(i32)
+}
+struct Plane {
+    id: String,
+    status: PlaneStatus,
+    band: i32
+}
+
+impl Plane {
+    fn new(self) -> Self {
+        Self {
+            id: self.id,
+            status: PlaneStatus::FREE,
+            band: -1
+        }
+    }
+}
+struct Band{
+    id: i32,
+    status: BandStatus 
+}
+
+impl Band {
+    fn new(self) -> Self{
+        Self{
+            id: self.id,
+            status: BandStatus::FREE
+        }
+    }
+}
+
 fn main() {
     let mut buffer = String::new();
     io::stdin().read_line(&mut buffer).unwrap();
@@ -10,6 +51,7 @@ fn main() {
     let number_of_air_bounds: i32 = airplanes_bounds[1].trim().parse().unwrap();
 
     // create hashmap for showing the status of bounds and airplans
+    // TODO: For better managing and design should create a plane struct
     let mut plane_status: HashMap<String, i32> = HashMap::new();
     let mut bound_status: HashMap<i32, i32> = HashMap::new();
 
@@ -51,6 +93,8 @@ fn main() {
                             Ok(c) => c,
                             Err(e) => panic!("{}", e)
                         };
+                        // update the plane status
+                        *plane_status.get_mut(&command[1].strip_suffix("\r\n").unwrap().to_owned()).unwrap() = 2;
                         break;
                     }else{
                         Some("NO FREE BOUND");
@@ -76,6 +120,8 @@ fn main() {
                             Ok(c) => c,
                             Err(e) => panic!("{}", e)
                         };
+
+                        *plane_status.get_mut(&command[1].strip_suffix("\r\n").unwrap().to_owned()).unwrap() = 3;
                         break;
                     }else{
                         Some("NO FREE BOUND");
@@ -87,8 +133,9 @@ fn main() {
                 None
             }
         },
-        "PLANE-STATUS"{
+        "PLANE-STATUS" => {
             
+            Some("")
         }
         _ => None
     };
