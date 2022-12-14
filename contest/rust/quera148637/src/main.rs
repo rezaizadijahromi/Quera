@@ -47,9 +47,11 @@ fn main() {
 
                 for (k, v) in bound_status.to_owned().iter_mut(){
                     if v == &-1{
-                        // when convert to i32 the vallue become null and program crash
-                        // the value from command 1 is null
-                        *bound_status.get_mut(&k).unwrap() = command[1].parse::<i32>().ok().unwrap();
+                        // when the bound is empty assign the plane to take off
+                        *bound_status.get_mut(&k).unwrap() = match command[1].strip_suffix("\r\n").unwrap().parse::<i32>(){
+                            Ok(c) => c,
+                            Err(e) => panic!("{}", e)
+                        };
                         break;
                     }
                 }
