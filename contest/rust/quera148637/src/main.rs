@@ -47,18 +47,9 @@ fn main() {
 
                 for (k, v) in bound_status.to_owned().iter_mut(){
                     if v == &-1{
-                       // TODO this is not updating the hash map
-                        let assing_plane: _ = match command[1].parse::<i32>() {
-                            Ok(command) => command,
-                            Err(e) => panic!("{}",e)
-                        };
-                        println!("{}", assing_plane);
-                       *bound_status.get_mut(&k).unwrap() += match command[1].parse::<i32>(){
-                            Ok(c) => 1 + c,
-                            Err(_) => 0
-                        };
-
-                        // *bound_status.get_mut(k).unwrap() += Ok(command[1].parse().pa);                        
+                        // when convert to i32 the vallue become null and program crash
+                        // the value from command 1 is null
+                        *bound_status.get_mut(&k).unwrap() = command[1].parse::<i32>().ok().unwrap();
                         break;
                     }
                 }
