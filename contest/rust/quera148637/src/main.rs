@@ -44,7 +44,6 @@ fn main() {
                 Some("YOU ARE TAKING OFF")
             }
             else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&1){
-
                 for (k, v) in bound_status.to_owned().iter_mut(){
                     if v == &-1{
                         // when the bound is empty assign the plane to take off
@@ -53,22 +52,44 @@ fn main() {
                             Err(e) => panic!("{}", e)
                         };
                         break;
+                    }else{
+                        Some("NO FREE BOUND");
                     }
                 }
-
-                println!("Updated bound status: {:?}", &bound_status);
                 Some("Something")
             }else{
                 None
             }
         },
         "LANDING" => {
-            if plane_status.get(&command[1].to_owned()) == Some(&4) {
-                Some("YOU ARE NOT HERE")
-            }else{
+            if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&1) {
+                Some("YOU ARE HERE")
+            }else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&2){
+                Some("YOU ARE TAKING OFF")
+            }else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&3){
+                Some("YOU ARE LANDING NOW")
+            }else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&4){ 
+                for (k, v) in bound_status.to_owned().iter_mut(){
+                    if v == &-1{
+                        // TODO Have to assign to the biggest bound
+                        *bound_status.get_mut(&k).unwrap() = match command[1].strip_suffix("\r\n").unwrap().parse::<i32>(){
+                            Ok(c) => c,
+                            Err(e) => panic!("{}", e)
+                        };
+                        break;
+                    }else{
+                        Some("NO FREE BOUND");
+                    }
+                }
+                Some("Something")
+            }
+            else{
                 None
             }
         },
+        "PLANE-STATUS"{
+            
+        }
         _ => None
     };
 
