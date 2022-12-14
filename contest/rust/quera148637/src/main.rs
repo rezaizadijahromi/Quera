@@ -44,16 +44,26 @@ fn main() {
                 Some("YOU ARE TAKING OFF")
             }
             else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&1){
-                println!("status bound: {:?}", bound_status);
-                // there is a problem here the bound status won't update
+
                 for (k, v) in bound_status.to_owned().iter_mut(){
-                    if k == &-1{
+                    if v == &-1{
                        // TODO this is not updating the hash map
-                        Some(bound_status.entry(*k).or_insert(*v));
+                        let assing_plane: _ = match command[1].parse::<i32>() {
+                            Ok(command) => command,
+                            Err(e) => panic!("{}",e)
+                        };
+                        println!("{}", assing_plane);
+                       *bound_status.get_mut(&k).unwrap() += match command[1].parse::<i32>(){
+                            Ok(c) => 1 + c,
+                            Err(_) => 0
+                        };
+
+                        // *bound_status.get_mut(k).unwrap() += Ok(command[1].parse().pa);                        
+                        break;
                     }
                 }
 
-                println!("Updated bound status: {:?}", bound_status);
+                println!("Updated bound status: {:?}", &bound_status);
                 Some("Something")
             }else{
                 None
