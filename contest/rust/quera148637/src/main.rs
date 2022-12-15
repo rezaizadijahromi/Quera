@@ -50,7 +50,7 @@ struct Band{
 
 #[allow(dead_code)]
 impl Band {
-    fn new(id: i32, status: BandStatus, airplane: Plane) -> Self{
+    fn new(id: i32, status: BandStatus,airplane: Plane) -> Self{
         Self{
             id,
             status,
@@ -108,7 +108,7 @@ fn main() {
         let command: Vec<&str> = commands.split(" ").collect();
         
         // Branches
-        let _state = match command[0] {
+        let _state: Option<&str> = match command[0] {
             "TAKE-OFF" => {
                 for plane in planes{
                     if plane.id == command[1].trim(){
@@ -132,15 +132,13 @@ fn main() {
                             };
                             // update for assing min band id
                             min_band += 1;
-                        }else{
-                            None;
                         }
                     }
-                }
-                break;
+                };
+                Some("here")
             },
             "LANDING" => { 
-                for plane in planes{
+                for plane in planes.iter().to_owned(){
                     if plane.id == command[1].trim(){
                         if plane.status == PlaneStatus::FREE(1){
                             Some("YOU ARE HERE");
@@ -158,7 +156,7 @@ fn main() {
                                         .enumerate()
                                         .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
                                         .map(|(index, _)| index);
-                            let max_bound = bands.get(index_of_max.unwrap()).unwrap();            
+                            let max_bound = bands.get(index_of_max.unwrap()).unwrap();        
                             if max_bound.status == BandStatus::FREE(0){
                                 plane.band = max_bound.id;
                                 max_bound.status = BandStatus::BUSY(1);
@@ -166,104 +164,33 @@ fn main() {
                             }else{
                                 Some("NO FREE BOUND");
                             } 
-                        }else{
-                            None;
                         }
                     }
                 }
-                break;
+               Some("here2")
             },
             "PLANE-STATUS" => {
                 for plane in planes{
                     if plane.id == command[1].trim(){
                         Some(plane.status);
-                    }else{
-                        None;
                     }
                 }
-                break;
+                Some("here3")
             },
             "BAND-STATUS" => {
                 for band in bands{
                     if band.id == command[1].trim().parse::<i32>().unwrap(){
                         Some(band.status);
-                    }else{
-                        None;
                     }
                 }
-                break;
+                Some("")
             }
             _ => None
         };
     }
 
 
-    // the branches are broken now
-    // TODO: New implementation needed here
-    let _state = match command[0] {
-        "TAKE-OFF" => {
-            if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&4) {
-                Some("YOU ARE NOT HERE")
-            }else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&3){
-                Some("YOU ARE LANDING NOW")
-            }
-            else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&2){
-                Some("YOU ARE TAKING OFF")
-            }
-            else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&1){
-                for (k, v) in bound_status.to_owned().iter_mut(){
-                    if v == &-1{
-                        // when the bound is empty assign the plane to take off
-                        *bound_status.get_mut(&k).unwrap() = match command[1].strip_suffix("\r\n").unwrap().parse::<i32>(){
-                            Ok(c) => c,
-                            Err(e) => panic!("{}", e)
-                        };
-                        // update the plane status
-                        *plane_status.get_mut(&command[1].strip_suffix("\r\n").unwrap().to_owned()).unwrap() = 2;
-                        break;
-                    }else{
-                        Some("NO FREE BOUND");
-                    }
-                }
-                Some("Something")
-            }else{
-                None
-            }
-        },
-        "LANDING" => {
-            if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&1) {
-                Some("YOU ARE HERE")
-            }else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&2){
-                Some("YOU ARE TAKING OFF")
-            }else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&3){
-                Some("YOU ARE LANDING NOW")
-            }else if plane_status.get(&command[1].strip_suffix("\r\n").unwrap().to_owned()) == Some(&4){ 
-                for (k, v) in bound_status.to_owned().iter_mut(){
-                    if v == &-1{
-                        // TODO Have to assign to the biggest bound
-                        *bound_status.get_mut(&k).unwrap() = match command[1].strip_suffix("\r\n").unwrap().parse::<i32>(){
-                            Ok(c) => c,
-                            Err(e) => panic!("{}", e)
-                        };
-
-                        *plane_status.get_mut(&command[1].strip_suffix("\r\n").unwrap().to_owned()).unwrap() = 3;
-                        break;
-                    }else{
-                        Some("NO FREE BOUND");
-                    }
-                }
-                Some("Something")
-            }
-            else{
-                None
-            }
-        },
-        "PLANE-STATUS" => {
-            
-            Some("")
-        }
-        _ => None
-    };
+   
 
 }
 
