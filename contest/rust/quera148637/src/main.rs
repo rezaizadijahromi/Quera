@@ -1,7 +1,7 @@
-use std::{io, collections::HashMap};
+use std::{io, collections::HashMap, cmp::Ordering};
 
 #[allow(dead_code, non_camel_case_types)]
-#[derive(Clone,Copy)]
+#[derive(Clone,Copy, PartialEq, PartialOrd)]
 enum PlaneStatus {
     FREE(i32),
     LANDING(i32),
@@ -9,13 +9,13 @@ enum PlaneStatus {
     NOT_IN_AIRPORT(i32)
 }
 #[allow(dead_code)]
-#[derive(Clone,Copy)]
+#[derive(Clone,Copy, PartialEq,PartialOrd)]
 enum BandStatus{
     FREE(i32),
     BUSY(i32)
 }
 #[allow(dead_code)]
-#[derive(Clone)]
+#[derive(Clone, PartialEq, PartialOrd)]
 struct Plane {
     id: String,
     status: PlaneStatus,
@@ -41,18 +41,20 @@ impl Plane {
     }
 }
 #[allow(dead_code)]
-#[derive(Clone,Copy)]
+#[derive(Clone,PartialEq, PartialOrd)]
 struct Band{
     id: i32,
-    status: BandStatus 
+    status: BandStatus,
+    airplane: Plane
 }
 
 #[allow(dead_code)]
 impl Band {
-    fn new(id: i32, status: BandStatus) -> Self{
+    fn new(id: i32, status: BandStatus, airplane: Plane) -> Self{
         Self{
             id,
-            status
+            status,
+            airplane
         }
     }
     fn status(&self) -> BandStatus{
@@ -87,7 +89,10 @@ fn main() {
     }
     // set the bounds status to -1 means not taken
     for index in 0..number_of_air_bounds {
-        let band: Band = Band::new(index, BandStatus::FREE(0));
+        let band: Band = Band::new(
+            index, BandStatus::FREE(0),
+         Plane { id: String::from(""), status: PlaneStatus::FREE(1), band: -1 }
+        );
         bands.push(band);
     }
 
@@ -101,7 +106,97 @@ fn main() {
         let mut commands: String = String::new();
         io::stdin().read_line(&mut commands).unwrap();
         let command: Vec<&str> = commands.split(" ").collect();
+        
+        // Branches
+        let _state = match command[0] {
+            "TAKE-OFF" => {
+                for plane in planes{
+                    if plane.id == command[1].trim(){
+                        if plane.status == PlaneStatus::NOT_IN_AIRPORT(4){
+                            Some("YOU ARE NOT HERE");
+                        }else if plane.status == PlaneStatus::LANDING(3){
+                            Some("YOU ARE LANDING NOW");
+                        }else if plane.status == PlaneStatus::TAKE_OFF(2){
+                            Some("YOU ARE TAKING OFF");
+                        }else if plane.status == PlaneStatus::FREE(1) {
+                            let min_band:i32 = 0;
+                            for band in bands{
+                                if band.id == 0 && band.status == BandStatus::FREE(0){
+                                    plane.band = band.id;
+                                    plane.status = PlaneStatus::TAKE_OFF(2);
+                                    band.airplane = plane;
+                                    band.status = BandStatus::BUSY(1);
+                                }else{
+                                    Some("NO FREE BOUND");
+                                }
+                            };
+                            // update for assing min band id
+                            min_band += 1;
+                        }else{
+                            None;
+                        }
+                    }
+                }
+                break;
+            },
+            "LANDING" => { 
+                for plane in planes{
+                    if plane.id == command[1].trim(){
+                        if plane.status == PlaneStatus::FREE(1){
+                            Some("YOU ARE HERE");
+                        }else if plane.status == PlaneStatus::TAKE_OFF(2){
+                            Some("YOU ARE TAKING OFF");
+                        }else if plane.status == PlaneStatus::LANDING(3){
+                            Some("YOU ARE LANDING NOW");
+                        }else if plane.status == PlaneStatus::NOT_IN_AIRPORT(4) {
+                            // change the airplane status
+                            plane.status = PlaneStatus::LANDING(3);
+                            // finding the max value 
+                            // TODO it's not all correct
+                            let index_of_max: Option<usize> = bands
+                                        .iter()
+                                        .enumerate()
+                                        .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
+                                        .map(|(index, _)| index);
+                            let max_bound = bands.get(index_of_max.unwrap()).unwrap();            
+                            if max_bound.status == BandStatus::FREE(0){
+                                plane.band = max_bound.id;
+                                max_bound.status = BandStatus::BUSY(1);
+                                max_bound.airplane = plane;
+                            }else{
+                                Some("NO FREE BOUND");
+                            } 
+                        }else{
+                            None;
+                        }
+                    }
+                }
+                break;
+            },
+            "PLANE-STATUS" => {
+                for plane in planes{
+                    if plane.id == command[1].trim(){
+                        Some(plane.status);
+                    }else{
+                        None;
+                    }
+                }
+                break;
+            },
+            "BAND-STATUS" => {
+                for band in bands{
+                    if band.id == command[1].trim().parse::<i32>().unwrap(){
+                        Some(band.status);
+                    }else{
+                        None;
+                    }
+                }
+                break;
+            }
+            _ => None
+        };
     }
+
 
     // the branches are broken now
     // TODO: New implementation needed here
