@@ -73,8 +73,8 @@ fn main() {
 
     // create hashmap for showing the status of bounds and airplans
     // TODO: For better managing and design should create a plane struct
-    let mut plane_status: HashMap<String, i32> = HashMap::new();
-    let mut bound_status: HashMap<i32, i32> = HashMap::new();
+    // let mut plane_status: HashMap<String, i32> = HashMap::new();
+    // let mut bound_status: HashMap<i32, i32> = HashMap::new();
     // list of planes
     let mut planes: Vec<Plane> = vec![];
     let mut bands: Vec<Band> = vec![];
@@ -96,7 +96,7 @@ fn main() {
         bands.push(band);
     }
 
-    println!("airplanes: {:?}", plane_status);
+    // println!("airplanes: {:?}", plane_status);
     // get the number of command and create loop for it
     let mut commands_count = String::new();
     // TODO should be in for loop for all the commands
@@ -110,7 +110,8 @@ fn main() {
         // Branches
         let _state: Option<&str> = match command[0] {
             "TAKE-OFF" => {
-                for plane in planes{
+                for plane in planes.iter_mut(){
+                    
                     if plane.id == command[1].trim(){
                         if plane.status == PlaneStatus::NOT_IN_AIRPORT(4){
                             Some("YOU ARE NOT HERE");
@@ -119,26 +120,26 @@ fn main() {
                         }else if plane.status == PlaneStatus::TAKE_OFF(2){
                             Some("YOU ARE TAKING OFF");
                         }else if plane.status == PlaneStatus::FREE(1) {
-                            let min_band:i32 = 0;
-                            for band in bands{
+                            let mut min_band = 0;
+                            for band in bands.iter_mut(){
                                 if band.id == 0 && band.status == BandStatus::FREE(0){
                                     plane.band = band.id;
                                     plane.status = PlaneStatus::TAKE_OFF(2);
-                                    band.airplane = plane;
+                                    //band.airplane = plane;
                                     band.status = BandStatus::BUSY(1);
                                 }else{
                                     Some("NO FREE BOUND");
                                 }
+                                // update for assing min band id
+                                min_band += 1;
                             };
-                            // update for assing min band id
-                            min_band += 1;
                         }
                     }
                 };
                 Some("here")
             },
             "LANDING" => { 
-                for mut plane in planes.iter().to_owned(){
+                for mut plane in planes.iter_mut(){
                     if plane.id == command[1].trim(){
                         if plane.status == PlaneStatus::FREE(1){
                             Some("YOU ARE HERE");
@@ -164,7 +165,7 @@ fn main() {
                                 plane.band = max_bound.id;
                                 // TODO it's not all correct
                                 max_bound.status = BandStatus::BUSY(1);
-                                max_bound.airplane = plane;
+                                // max_bound.airplane = plane;
                             }else{
                                 Some("NO FREE BOUND");
                             } 
@@ -174,7 +175,7 @@ fn main() {
                Some("here2")
             },
             "PLANE-STATUS" => {
-                for plane in planes{
+                for plane in planes.iter(){
                     if plane.id == command[1].trim(){
                         Some(plane.status);
                     }
@@ -182,7 +183,7 @@ fn main() {
                 Some("here3")
             },
             "BAND-STATUS" => {
-                for band in bands{
+                for band in bands.iter(){
                     if band.id == command[1].trim().parse::<i32>().unwrap(){
                         Some(band.status);
                     }
