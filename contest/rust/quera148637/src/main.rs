@@ -1,4 +1,4 @@
-use std::{io, collections::HashMap, cmp::Ordering};
+use std::{io, collections::HashMap};
 
 #[allow(dead_code, non_camel_case_types)]
 #[derive(Clone,Copy, PartialEq, PartialOrd)]
@@ -138,7 +138,7 @@ fn main() {
                 Some("here")
             },
             "LANDING" => { 
-                for plane in planes.iter().to_owned(){
+                for mut plane in planes.iter().to_owned(){
                     if plane.id == command[1].trim(){
                         if plane.status == PlaneStatus::FREE(1){
                             Some("YOU ARE HERE");
@@ -149,16 +149,20 @@ fn main() {
                         }else if plane.status == PlaneStatus::NOT_IN_AIRPORT(4) {
                             // change the airplane status
                             plane.status = PlaneStatus::LANDING(3);
+                            
                             // finding the max value 
-                            // TODO it's not all correct
-                            let index_of_max: Option<usize> = bands
-                                        .iter()
-                                        .enumerate()
-                                        .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
-                                        .map(|(index, _)| index);
-                            let max_bound = bands.get(index_of_max.unwrap()).unwrap();        
+                            let mut max_index= 0;
+                            for  (index,band) in bands.iter().enumerate(){
+                                if band.status == BandStatus::FREE(0){
+                                    max_index = index;
+                                }
+                            }
+                            
+                            let mut max_bound = bands.get(max_index).unwrap().to_owned();        
+                            // TODO: plane is borrowed
                             if max_bound.status == BandStatus::FREE(0){
                                 plane.band = max_bound.id;
+                                // TODO it's not all correct
                                 max_bound.status = BandStatus::BUSY(1);
                                 max_bound.airplane = plane;
                             }else{
