@@ -1,7 +1,7 @@
 use std::io;
 
 #[allow(dead_code, non_camel_case_types)]
-#[derive(Clone,Copy, PartialEq, PartialOrd)]
+#[derive(Clone,Copy, Debug,PartialEq, PartialOrd)]
 enum PlaneStatus {
     FREE(i32),
     LANDING(i32),
@@ -119,7 +119,7 @@ fn main() {
                             Some("YOU ARE LANDING NOW");
                         }else if plane.status == PlaneStatus::TAKE_OFF(2){
                             Some("YOU ARE TAKING OFF");
-                        }else if plane.status == PlaneStatus::FREE(1) {
+                        }else if plane.status == PlaneStatus::FREE(0) {
                             let mut min_band = 0;
                             for band in bands.iter_mut(){
                                 if band.id == 0 && band.status == BandStatus::FREE(0){
@@ -136,7 +136,7 @@ fn main() {
                         }
                     }
                 };
-                Some("here")
+                None
             },
             "LANDING" => { 
                 for mut plane in planes.iter_mut(){
@@ -172,12 +172,13 @@ fn main() {
                         }
                     }
                 }
-               Some("here2")
+               None
             },
             // TODO: status did not returned
             "PLANE-STATUS" => {
                 for plane in planes.iter(){
                     if plane.id == command[1].trim(){
+                        println!("{:?}", plane.status);
                         Some(plane.status);
                     }
                 }
