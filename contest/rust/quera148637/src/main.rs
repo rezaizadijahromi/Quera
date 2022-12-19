@@ -1,4 +1,4 @@
-use std::{io, collections::HashMap};
+use std::io;
 
 #[allow(dead_code, non_camel_case_types)]
 #[derive(Clone,Copy, PartialEq, PartialOrd)]
@@ -174,14 +174,16 @@ fn main() {
                 }
                Some("here2")
             },
+            // TODO: status did not returned
             "PLANE-STATUS" => {
                 for plane in planes.iter(){
                     if plane.id == command[1].trim(){
                         Some(plane.status);
                     }
                 }
-                Some("here3")
+                Some("")
             },
+            // TODO: status did not returned
             "BAND-STATUS" => {
                 for band in bands.iter(){
                     if band.id == command[1].trim().parse::<i32>().unwrap(){
