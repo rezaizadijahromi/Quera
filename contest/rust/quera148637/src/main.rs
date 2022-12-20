@@ -83,6 +83,7 @@ fn main() {
                             } else if plane.status == Some(1) {
                                 let min_index_band = bands
                                     .iter_mut()
+                                    .filter(|band| band.status == BandStatus::FREE)
                                     .enumerate()
                                     .min_by(|(_, a), (_, b)| {
                                         if a.status == BandStatus::FREE
@@ -130,22 +131,22 @@ fn main() {
                         } else if plane.status == Some(3) {
                             println!("YOU ARE LANDING NOW");
                         } else if plane.status == Some(4) {
-                            let index_band = bands
+                            let target_band = bands
                                 .iter_mut()
-                                .enumerate()
-                                .max_by(|(_, a), (_, b)| {
+                                .filter(|band| band.status == BandStatus::FREE)
+                                .max_by(|a, b| {
                                     if a.status == BandStatus::FREE && b.status == BandStatus::FREE
                                     {
-                                        a.partial_cmp(b).unwrap()
+                                        a.id.partial_cmp(&b.id).unwrap()
                                     } else {
                                         Ordering::Greater
                                     }
-                                })
-                                .map(|(index, _)| index);
+                                });
 
-                            let target_band = bands
+                            let plane = planes
                                 .iter_mut()
-                                .find(|band| usize::from(band.id) == index_band.unwrap() + 1);
+                                .find(|plane| plane.id == command[1].trim().to_string())
+                                .unwrap();
 
                             match target_band {
                                 Some(band) => {
@@ -163,22 +164,17 @@ fn main() {
 
                     None => {
                         planes.push(Plane::new(command[1].trim().to_string(), Some(4)));
-
-                        let index_band = bands
-                            .iter_mut()
-                            .enumerate()
-                            .max_by(|(_, a), (_, b)| {
-                                if a.status == BandStatus::FREE && b.status == BandStatus::FREE {
-                                    a.partial_cmp(b).unwrap()
-                                } else {
-                                    Ordering::Equal
-                                }
-                            })
-                            .map(|(index, _)| index);
-
+                        println!("bands: {:?}", bands);
                         let target_band = bands
                             .iter_mut()
-                            .find(|band| usize::from(band.id) == index_band.unwrap() + 1);
+                            .filter(|band| band.status == BandStatus::FREE)
+                            .max_by(|a, b| {
+                                if a.status == BandStatus::FREE && b.status == BandStatus::FREE {
+                                    a.id.partial_cmp(&b.id).unwrap()
+                                } else {
+                                    Ordering::Greater
+                                }
+                            });
 
                         let plane = planes
                             .iter_mut()
@@ -200,10 +196,11 @@ fn main() {
                 }
             }
             "PLANE-STATUS" => {
-                for plane in planes.iter() {
-                    if plane.id == command[1].trim() {
-                        println!("{}", plane.status.unwrap());
-                    }
+                let plane = planes.iter().find(|plane| plane.id == command[1].trim());
+
+                match plane {
+                    Some(p) => println!("{}", p.status.unwrap()),
+                    None => println!("4"),
                 }
             }
             "BAND-STATUS" => {
