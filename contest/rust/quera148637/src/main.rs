@@ -178,7 +178,7 @@ fn main() {
 
                         let target_band = bands
                             .iter_mut()
-                            .find(|band| usize::from(band.id) == index_band.unwrap());
+                            .find(|band| usize::from(band.id) == index_band.unwrap() + 1);
 
                         let plane = planes
                             .iter_mut()
@@ -202,7 +202,7 @@ fn main() {
             "PLANE-STATUS" => {
                 for plane in planes.iter() {
                     if plane.id == command[1].trim() {
-                        println!("{:?}", plane.status.unwrap());
+                        println!("{}", plane.status.unwrap());
                     }
                 }
             }
@@ -215,7 +215,7 @@ fn main() {
                     .to_owned();
 
                 match target_band {
-                    Some(band) => println!("{:?}", band.id),
+                    Some(band) => println!("{}", band.id),
                     None => println!("FREE"),
                 }
             }
