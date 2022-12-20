@@ -78,15 +78,19 @@ fn main() {
                             } else if plane.status == Some(2) {
                                 println!("YOU ARE TAKING OFF")
                             } else if plane.status == Some(1) {
-                                for band in bands.iter_mut() {
-                                    if band.status == BandStatus::FREE {
-                                        plane.status = Some(2);
-                                        plane.band = Some(band.id);
-                                        band.status = BandStatus::BUSY;
-                                        band.airplane = Some(plane.clone());
-                                    } else {
-                                        println!("NO FREE BOUND");
+                                let target_band = bands
+                                    .iter_mut()
+                                    .find(|band| band.status == BandStatus::FREE);
+                                match target_band {
+                                    Some(band) => {
+                                        if band.status == BandStatus::FREE {
+                                            plane.status = Some(2);
+                                            plane.band = Some(band.id);
+                                            band.status = BandStatus::BUSY;
+                                            band.airplane = Some(plane.clone());
+                                        }
                                     }
+                                    None => println!("NO FREE BOUND"),
                                 }
                             }
                         }
@@ -136,14 +140,13 @@ fn main() {
                 }
             }
             "BAND-STATUS" => {
-                for band in bands.iter() {
-                    if band.id == command[1].trim().parse::<u8>().unwrap() {
-                        if band.status == BandStatus::BUSY {
-                            println!("{:#?}", band.airplane.as_ref().unwrap().id);
-                        } else {
-                            println!("FREE");
-                        }
-                    }
+                let target_band = bands
+                    .iter()
+                    .find(|band| band.id == command[1].trim().parse().unwrap());
+
+                match target_band {
+                    Some(band) => println!("{:#?}", band.airplane.clone().unwrap().id),
+                    None => println!("FREE"),
                 }
             }
             _ => (),
