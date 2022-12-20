@@ -81,24 +81,23 @@ fn main() {
                             } else if plane.status == Some(2) {
                                 println!("YOU ARE TAKING OFF")
                             } else if plane.status == Some(1) {
-                                let min_index_band = bands
+                                let target_band = bands
                                     .iter_mut()
                                     .filter(|band| band.status == BandStatus::FREE)
-                                    .enumerate()
-                                    .min_by(|(_, a), (_, b)| {
+                                    .max_by(|a, b| {
                                         if a.status == BandStatus::FREE
                                             && b.status == BandStatus::FREE
                                         {
-                                            a.partial_cmp(b).unwrap()
+                                            a.id.partial_cmp(&b.id).unwrap()
                                         } else {
                                             Ordering::Less
                                         }
-                                    })
-                                    .map(|(index, _)| index);
+                                    });
 
-                                let target_band = bands.iter_mut().find(|band| {
-                                    usize::from(band.id) == min_index_band.unwrap() + 1
-                                });
+                                let plane = planes
+                                    .iter_mut()
+                                    .find(|plane| plane.id == command[1].trim().to_string())
+                                    .unwrap();
 
                                 match target_band {
                                     Some(band) => {
@@ -164,7 +163,7 @@ fn main() {
 
                     None => {
                         planes.push(Plane::new(command[1].trim().to_string(), Some(4)));
-                        println!("bands: {:?}", bands);
+
                         let target_band = bands
                             .iter_mut()
                             .filter(|band| band.status == BandStatus::FREE)
