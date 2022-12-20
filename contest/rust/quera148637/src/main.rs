@@ -164,6 +164,8 @@ fn main() {
                     None => {
                         planes.push(Plane::new(command[1].trim().to_string(), Some(4)));
 
+                        println!("{:?}", bands);
+
                         let target_band = bands
                             .iter_mut()
                             .filter(|band| band.status == BandStatus::FREE)
@@ -174,6 +176,8 @@ fn main() {
                                     Ordering::Greater
                                 }
                             });
+
+                        println!("{:?}", target_band);
 
                         let plane = planes
                             .iter_mut()
