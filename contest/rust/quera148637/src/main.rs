@@ -1,204 +1,152 @@
-use std::io;
-
-#[allow(dead_code, non_camel_case_types)]
-#[derive(Clone,Copy, Debug,PartialEq, PartialOrd)]
-enum PlaneStatus {
-    FREE(i32),
-    LANDING(i32),
-    TAKE_OFF(i32),
-    NOT_IN_AIRPORT(i32)
-}
-#[allow(dead_code)]
-#[derive(Clone,Copy, PartialEq,PartialOrd)]
-enum BandStatus{
-    FREE(i32),
-    BUSY(i32)
-}
-#[allow(dead_code)]
-#[derive(Clone, PartialEq, PartialOrd)]
+#[derive(Clone)]
 struct Plane {
     id: String,
-    status: PlaneStatus,
-    band: i32
+    status: Option<u8>,
+    band: Option<u8>,
 }
-
-#[allow(dead_code)]
 impl Plane {
-    fn new(id: String, status: PlaneStatus, band: i32) -> Self {
-        Self {
+    /// Create new plane
+    fn new(id: String, status: Option<u8>) -> Plane {
+        Plane {
             id,
             status,
-            band
+            band: None,
         }
     }
-    fn status(&self) -> PlaneStatus{
-        self.status
-    }
-
-    fn assign_to_band(&mut self, band: i32) -> i32 {
-        self.band = band;
-        return  self.band;
-    }
 }
-#[allow(dead_code)]
-#[derive(Clone,PartialEq, PartialOrd)]
-struct Band{
-    id: i32,
+#[derive(PartialEq, Debug)]
+enum BandStatus {
+    FREE,
+    BUSY,
+}
+
+struct Band {
+    id: u8,
     status: BandStatus,
-    airplane: Plane
+    airplane: Option<Plane>,
 }
 
-#[allow(dead_code)]
 impl Band {
-    fn new(id: i32, status: BandStatus,airplane: Plane) -> Self{
-        Self{
+    fn new(id: u8) -> Band {
+        Band {
             id,
-            status,
-            airplane
+            status: BandStatus::FREE,
+            airplane: None,
         }
-    }
-    fn status(&self) -> BandStatus{
-        self.status
     }
 }
 
 fn main() {
     let mut buffer = String::new();
-    io::stdin().read_line(&mut buffer).unwrap();
-    let airplanes_bounds: Vec<&str> = buffer.trim().split(' ').collect();
+    std::io::stdin().read_line(&mut buffer).unwrap();
+    let inputs: Vec<&str> = buffer.trim().split(' ').collect();
 
-    // get number of air planes and bounds
-    let number_of_airplanes: i32 = airplanes_bounds[0].trim().parse().unwrap();
-    let number_of_air_bounds: i32 = airplanes_bounds[1].trim().parse().unwrap();
+    let mut planes = Vec::new();
+    let mut bands = Vec::new();
 
-    // create hashmap for showing the status of bounds and airplans
-    // TODO: For better managing and design should create a plane struct
-    // let mut plane_status: HashMap<String, i32> = HashMap::new();
-    // let mut bound_status: HashMap<i32, i32> = HashMap::new();
-    // list of planes
-    let mut planes: Vec<Plane> = vec![];
-    let mut bands: Vec<Band> = vec![];
+    for _ in 0..inputs[0].trim().parse().unwrap() {
+        let mut buffer = String::new();
+        std::io::stdin().read_line(&mut buffer).unwrap();
 
-    // getting planes id and set status 1 for all of them
-    for _ in 0..number_of_airplanes{
-        let mut airplane: String = String::new();
-        io::stdin().read_line(&mut airplane).unwrap();   
-        let plane: Plane = Plane::new(airplane.strip_suffix("\r\n").unwrap().to_string(), PlaneStatus::FREE(0), -1);
-        planes.push(plane);
-        
+        planes.push(Plane::new(buffer.trim().to_string(), Some(1)));
     }
-    // set the bounds status to -1 means not taken
-    for index in 0..number_of_air_bounds {
-        let band: Band = Band::new(
-            index, BandStatus::FREE(0),
-         Plane { id: String::from(""), status: PlaneStatus::FREE(1), band: -1 }
-        );
-        bands.push(band);
+    for i in 0..inputs[1].trim().parse().unwrap() {
+        bands.push(Band::new(i));
     }
 
-    // println!("airplanes: {:?}", plane_status);
-    // get the number of command and create loop for it
-    let mut commands_count = String::new();
-    // TODO should be in for loop for all the commands
-    io::stdin().read_line(&mut commands_count).unwrap();
-    for _ in 0..commands_count.trim().parse().unwrap(){
-        // get the command and split it 
-        let mut commands: String = String::new();
-        io::stdin().read_line(&mut commands).unwrap();
-        let command: Vec<&str> = commands.split(" ").collect();
-        
-        // Branches
-        let _state: Option<&str> = match command[0] {
+    let mut buffer = String::new();
+    std::io::stdin().read_line(&mut buffer).unwrap();
+
+    for _ in 0..buffer.trim().parse().unwrap() {
+        let mut buffer = String::new();
+        std::io::stdin().read_line(&mut buffer).unwrap();
+        let command: Vec<&str> = buffer.trim().split(' ').collect();
+
+        match command[0] {
             "TAKE-OFF" => {
-                for plane in planes.iter_mut(){
-                    
-                    if plane.id == command[1].trim(){
-                        if plane.status == PlaneStatus::NOT_IN_AIRPORT(4){
-                            Some("YOU ARE NOT HERE");
-                        }else if plane.status == PlaneStatus::LANDING(3){
-                            Some("YOU ARE LANDING NOW");
-                        }else if plane.status == PlaneStatus::TAKE_OFF(2){
-                            Some("YOU ARE TAKING OFF");
-                        }else if plane.status == PlaneStatus::FREE(0) {
-                            let mut min_band = 0;
-                            for band in bands.iter_mut(){
-                                if band.id == 0 && band.status == BandStatus::FREE(0){
-                                    plane.band = band.id;
-                                    plane.status = PlaneStatus::TAKE_OFF(2);
-                                    //band.airplane = plane;
-                                    band.status = BandStatus::BUSY(1);
-                                }else{
-                                    Some("NO FREE BOUND");
-                                }
-                                // update for assing min band id
-                                min_band += 1;
-                            };
-                        }
-                    }
-                };
-                None
-            },
-            "LANDING" => { 
-                for mut plane in planes.iter_mut(){
-                    if plane.id == command[1].trim(){
-                        if plane.status == PlaneStatus::FREE(1){
-                            Some("YOU ARE HERE");
-                        }else if plane.status == PlaneStatus::TAKE_OFF(2){
-                            Some("YOU ARE TAKING OFF");
-                        }else if plane.status == PlaneStatus::LANDING(3){
-                            Some("YOU ARE LANDING NOW");
-                        }else if plane.status == PlaneStatus::NOT_IN_AIRPORT(4) {
-                            // change the airplane status
-                            plane.status = PlaneStatus::LANDING(3);
-                            
-                            // finding the max value 
-                            let mut max_index= 0;
-                            for  (index,band) in bands.iter().enumerate(){
-                                if band.status == BandStatus::FREE(0){
-                                    max_index = index;
+                let target_plane = planes
+                    .iter_mut()
+                    .find(|plane| plane.id == command[1].trim());
+
+                match target_plane {
+                    Some(plane) => {
+                        if plane.id == command[1].trim().to_string() {
+                            if plane.status == Some(4) {
+                                println!("YOU ARE NOT HERE");
+                            } else if plane.status == Some(3) {
+                                println!("YOU ARE LANDING NOW");
+                            } else if plane.status == Some(2) {
+                                println!("YOU ARE TAKING OFF")
+                            } else if plane.status == Some(1) {
+                                for band in bands.iter_mut() {
+                                    if band.status == BandStatus::FREE {
+                                        plane.status = Some(2);
+                                        plane.band = Some(band.id);
+                                        band.status = BandStatus::BUSY;
+                                        band.airplane = Some(plane.clone());
+                                    } else {
+                                        println!("NO FREE BOUND");
+                                    }
                                 }
                             }
-                            
-                            let mut max_bound = bands.get(max_index).unwrap().to_owned();        
-                            // TODO: plane is borrowed
-                            if max_bound.status == BandStatus::FREE(0){
-                                plane.band = max_bound.id;
-                                // TODO it's not all correct
-                                max_bound.status = BandStatus::BUSY(1);
-                                // max_bound.airplane = plane;
-                            }else{
-                                Some("NO FREE BOUND");
-                            } 
+                        }
+                    }
+                    None => planes.push(Plane::new(command[1].trim().to_string(), Some(4))),
+                }
+            }
+            "LANDING" => {
+                let target_plane = planes
+                    .iter_mut()
+                    .find(|plane| plane.id == command[1].trim());
+                match target_plane {
+                    Some(plane) => {
+                        if plane.status == Some(1) {
+                            println!("YOU ARE HERE");
+                        } else if plane.status == Some(2) {
+                            println!("YOU ARE TAKING");
+                        } else if plane.status == Some(3) {
+                            println!("YOU ARE LANDING NOW");
+                        } else if plane.status == Some(4) {
+                            let target_band = bands
+                                .iter_mut()
+                                .rev()
+                                .find(|band| band.status == BandStatus::FREE);
+
+                            match target_band {
+                                Some(band) => {
+                                    if band.status == BandStatus::FREE {
+                                        plane.status = Some(3);
+                                        plane.band = Some(band.id);
+                                        band.status = BandStatus::BUSY;
+                                        band.airplane = Some(plane.clone());
+                                    }
+                                }
+                                None => println!("NO FREE BOUND"),
+                            }
+                        }
+                    }
+                    None => planes.push(Plane::new(command[1].trim().to_string(), Some(4))),
+                }
+            }
+            "PLANE-STATUS" => {
+                for plane in planes.iter() {
+                    if plane.id == command[1].trim() {
+                        println!("{:?}", plane.status.unwrap());
+                    }
+                }
+            }
+            "BAND-STATUS" => {
+                for band in bands.iter() {
+                    if band.id == command[1].trim().parse::<u8>().unwrap() {
+                        if band.status == BandStatus::BUSY {
+                            println!("{:#?}", band.airplane.as_ref().unwrap().id);
+                        } else {
+                            println!("FREE");
                         }
                     }
                 }
-               None
-            },
-            // TODO: status did not returned
-            "PLANE-STATUS" => {
-                for plane in planes.iter(){
-                    if plane.id == command[1].trim(){
-                        println!("{:?}", plane.status);
-                        Some(plane.status);
-                    }
-                }
-                Some("")
-            },
-            // TODO: status did not returned
-            "BAND-STATUS" => {
-                for band in bands.iter(){
-                    if band.id == command[1].trim().parse::<i32>().unwrap(){
-                        Some(band.status);
-                    }
-                }
-                Some("")
             }
-            _ => None
+            _ => (),
         };
     }
-
-
-   
-
 }
-
