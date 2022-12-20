@@ -53,7 +53,7 @@ fn main() {
 
         planes.push(Plane::new(buffer.trim().to_string(), Some(1)));
     }
-    for i in 0..inputs[1].trim().parse().unwrap() {
+    for i in 1..=inputs[1].trim().parse().unwrap() {
         bands.push(Band::new(i));
     }
 
@@ -83,7 +83,22 @@ fn main() {
                             } else if plane.status == Some(1) {
                                 let target_band = bands
                                     .iter_mut()
-                                    .find(|band| band.status == BandStatus::FREE);
+                                    .filter(|band| band.status == BandStatus::FREE)
+                                    .min_by(|a, b| {
+                                        if a.status == BandStatus::FREE
+                                            && b.status == BandStatus::FREE
+                                        {
+                                            a.id.partial_cmp(&b.id).unwrap()
+                                        } else {
+                                            Ordering::Less
+                                        }
+                                    });
+
+                                let plane = planes
+                                    .iter_mut()
+                                    .find(|plane| plane.id == command[1].trim().to_string())
+                                    .unwrap();
+
                                 match target_band {
                                     Some(band) => {
                                         if band.status == BandStatus::FREE {
@@ -115,26 +130,23 @@ fn main() {
                         } else if plane.status == Some(3) {
                             println!("YOU ARE LANDING NOW");
                         } else if plane.status == Some(4) {
-                            let index_band = bands
-                                .iter_mut()
-                                .enumerate()
-                                .max_by(|(_, a), (_, b)| {
-                                    if a.status == BandStatus::FREE && b.status == BandStatus::FREE
-                                    {
-                                        a.partial_cmp(b).unwrap()
-                                    } else {
-                                        Ordering::Equal
-                                    }
-                                })
-                                .map(|(index, _)| index);
-
                             let target_band = bands
                                 .iter_mut()
-                                .find(|band| usize::from(band.id) == index_band.unwrap());
+                                .filter(|band| band.status == BandStatus::FREE)
+                                .max_by(|a, b| {
+                                    if a.status == BandStatus::FREE && b.status == BandStatus::FREE
+                                    {
+                                        a.id.partial_cmp(&b.id).unwrap()
+                                    } else {
+                                        Ordering::Greater
+                                    }
+                                });
 
-                            // For debuging
-                            println!("band: {:#?}", target_band.as_ref().unwrap());
-                            println!("plane: {}", plane.id);
+                            let plane = planes
+                                .iter_mut()
+                                .find(|plane| plane.id == command[1].trim().to_string())
+                                .unwrap();
+
                             match target_band {
                                 Some(band) => {
                                     if band.status == BandStatus::FREE {
@@ -148,24 +160,58 @@ fn main() {
                             }
                         }
                     }
-                    // TODO: need to assign a band to the airplane as well
-                    None => planes.push(Plane::new(command[1].trim().to_string(), Some(4))),
+
+                    None => {
+                        planes.push(Plane::new(command[1].trim().to_string(), Some(4)));
+
+                        let target_band = bands
+                            .iter_mut()
+                            .filter(|band| band.status == BandStatus::FREE)
+                            .max_by(|a, b| {
+                                if a.status == BandStatus::FREE && b.status == BandStatus::FREE {
+                                    a.id.partial_cmp(&b.id).unwrap()
+                                } else {
+                                    Ordering::Greater
+                                }
+                            });
+
+                        let plane = planes
+                            .iter_mut()
+                            .find(|plane| plane.id == command[1].trim().to_string())
+                            .unwrap();
+
+                        match target_band {
+                            Some(band) => {
+                                if band.status == BandStatus::FREE {
+                                    plane.status = Some(3);
+                                    plane.band = Some(band.id);
+                                    band.status = BandStatus::BUSY;
+                                    band.airplane = Some(plane.clone());
+                                }
+                            }
+                            None => println!("NO FREE BOUND"),
+                        }
+                    }
                 }
             }
             "PLANE-STATUS" => {
-                for plane in planes.iter() {
-                    if plane.id == command[1].trim() {
-                        println!("{:?}", plane.status.unwrap());
-                    }
+                let plane = planes.iter().find(|plane| plane.id == command[1].trim());
+
+                match plane {
+                    Some(p) => println!("{}", p.status.unwrap()),
+                    None => println!("4"),
                 }
             }
             "BAND-STATUS" => {
                 let target_band = bands
                     .iter()
-                    .find(|band| band.id == command[1].trim().parse().unwrap());
+                    .find(|band| band.id == command[1].trim().parse::<u8>().unwrap())
+                    .unwrap()
+                    .airplane
+                    .to_owned();
 
                 match target_band {
-                    Some(band) => println!("{:#?}", band.airplane.clone().unwrap().id),
+                    Some(band) => println!("{}", band.id),
                     None => println!("FREE"),
                 }
             }
