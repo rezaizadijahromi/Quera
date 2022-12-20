@@ -84,7 +84,7 @@ fn main() {
                                 let target_band = bands
                                     .iter_mut()
                                     .filter(|band| band.status == BandStatus::FREE)
-                                    .max_by(|a, b| {
+                                    .min_by(|a, b| {
                                         if a.status == BandStatus::FREE
                                             && b.status == BandStatus::FREE
                                         {
@@ -164,8 +164,6 @@ fn main() {
                     None => {
                         planes.push(Plane::new(command[1].trim().to_string(), Some(4)));
 
-                        println!("{:?}", bands);
-
                         let target_band = bands
                             .iter_mut()
                             .filter(|band| band.status == BandStatus::FREE)
@@ -176,8 +174,6 @@ fn main() {
                                     Ordering::Greater
                                 }
                             });
-
-                        println!("{:?}", target_band);
 
                         let plane = planes
                             .iter_mut()
