@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct Plane {
     id: String,
     status: Option<u8>,
@@ -22,7 +22,7 @@ enum BandStatus {
     FREE,
     BUSY,
 }
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+#[derive(PartialEq, Debug, Eq, PartialOrd, Ord)]
 struct Band {
     id: u8,
     status: BandStatus,
@@ -105,6 +105,7 @@ fn main() {
                 let target_plane = planes
                     .iter_mut()
                     .find(|plane| plane.id == command[1].trim());
+
                 match target_plane {
                     Some(plane) => {
                         if plane.status == Some(1) {
@@ -131,6 +132,9 @@ fn main() {
                                 .iter_mut()
                                 .find(|band| usize::from(band.id) == index_band.unwrap());
 
+                            // For debuging
+                            println!("band: {:#?}", target_band.as_ref().unwrap());
+                            println!("plane: {}", plane.id);
                             match target_band {
                                 Some(band) => {
                                     if band.status == BandStatus::FREE {
@@ -144,6 +148,7 @@ fn main() {
                             }
                         }
                     }
+                    // TODO: need to assign a band to the airplane as well
                     None => planes.push(Plane::new(command[1].trim().to_string(), Some(4))),
                 }
             }
