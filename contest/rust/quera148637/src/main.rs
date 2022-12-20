@@ -1,9 +1,12 @@
-#[derive(Clone)]
+use std::cmp::Ordering;
+
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 struct Plane {
     id: String,
     status: Option<u8>,
     band: Option<u8>,
 }
+
 impl Plane {
     /// Create new plane
     fn new(id: String, status: Option<u8>) -> Plane {
@@ -14,12 +17,12 @@ impl Plane {
         }
     }
 }
-#[derive(PartialEq, Debug)]
+#[derive(Eq, PartialOrd, PartialEq, Ord, Debug)]
 enum BandStatus {
     FREE,
     BUSY,
 }
-
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
 struct Band {
     id: u8,
     status: BandStatus,
@@ -111,10 +114,22 @@ fn main() {
                         } else if plane.status == Some(3) {
                             println!("YOU ARE LANDING NOW");
                         } else if plane.status == Some(4) {
+                            let index_band = bands
+                                .iter_mut()
+                                .enumerate()
+                                .max_by(|(_, a), (_, b)| {
+                                    if a.status == BandStatus::FREE && b.status == BandStatus::FREE
+                                    {
+                                        a.partial_cmp(b).unwrap()
+                                    } else {
+                                        Ordering::Equal
+                                    }
+                                })
+                                .map(|(index, _)| index);
+
                             let target_band = bands
                                 .iter_mut()
-                                .rev()
-                                .find(|band| band.status == BandStatus::FREE);
+                                .find(|band| usize::from(band.id) == index_band.unwrap());
 
                             match target_band {
                                 Some(band) => {
