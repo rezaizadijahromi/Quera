@@ -1,4 +1,5 @@
-use std::{io, vec};
+use std::io;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
@@ -54,8 +55,69 @@ impl Table {
     }
 }
 
-enum CommandType {}
-struct Command {}
+enum CommandType {
+    ORDER,
+}
+
+struct FoodOrder {
+    name: String,
+    quantity: usize,
+}
+
+impl FoodOrder {
+    fn new(food_name: String, quantity: usize) -> Self {
+        Self {
+            name: food_name,
+            quantity,
+        }
+    }
+}
+
+struct Order {
+    id: usize,
+    foods: Vec<FoodOrder>,
+    seat: usize,
+    timestamp: String,
+}
+static COUNTER: AtomicUsize = AtomicUsize::new(0);
+
+impl Order {
+    fn get_index(&self) -> usize {
+        COUNTER.load(Ordering::Relaxed) + 1
+    }
+
+    fn new(&self, foods: Vec<FoodOrder>, seat: usize, timestamp: String) -> Self {
+        COUNTER.fetch_add(1, Ordering::Relaxed);
+        let index: usize = Order::get_index(&self);
+        Self {
+            id: index,
+            foods,
+            seat,
+            timestamp,
+        }
+    }
+
+    fn register_food(&self) {
+        let order: String = get_input();
+        let mut order_input: Vec<_> = order.trim().split(' ').collect();
+        let length = order_input.len();
+        let seat_number: usize = order_input[length - 1].parse::<usize>().unwrap();
+        let timestamp = order_input[length].to_string();
+        // remove order, seat and timestamp from array
+        order_input.remove(0);
+        order_input.remove(length - 1);
+        order_input.remove(length);
+        let mut food_array: Vec<FoodOrder> = Vec::new();
+        for food_element in order_input {
+            let food: Vec<_> = food_element.trim().split('X').collect();
+            // create a food order
+            let foods = FoodOrder::new(food[0].to_string(), food[1].parse::<usize>().unwrap());
+            food_array.push(foods);
+        }
+
+        Order::new(self, food_array, seat_number, timestamp);
+    }
+}
 
 fn get_input() -> String {
     let mut input = String::new();
